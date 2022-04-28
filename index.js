@@ -97,6 +97,7 @@ app.get('/post-status', (req, res) => {
 
         await client.uploadPhoto({ photo: "./status.jpg", post: 'status' });
         console.log("done");
+        res.send({ message: "status updated" });
     })()
 });
 
