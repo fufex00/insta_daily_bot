@@ -19,7 +19,7 @@ const client = new Instagram({
 
 app.get('/', (req, res) => {
     res.send('App is running!');
-}
+});
 
 //creates a schedule for the bot to run every day at 18:00
 cron.schedule('00 18 * * *', () => {
