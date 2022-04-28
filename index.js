@@ -17,6 +17,10 @@ const client = new Instagram({
     cookieStore
 });
 
+app.get('/', (req, res) => {
+    res.send('App is running!');
+}
+
 //creates a schedule for the bot to run every day at 18:00
 cron.schedule('00 18 * * *', () => {
     ; (async () => {
@@ -95,10 +99,6 @@ app.get('/post-status', (req, res) => {
         console.log("done");
     })()
 });
-
-
-
-
 
 
 app.listen(port, () => {
