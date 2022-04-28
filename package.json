@@ -1,0 +1,20 @@
+{
+  "name": "insta_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.0",
+    "instagram-web-api": "^2.2.2",
+    "node-cron": "^3.0.0",
+    "tough-cookie-filestore2": "^1.0.0",
+    "wordpos": "^2.1.0"
+  }
+}
