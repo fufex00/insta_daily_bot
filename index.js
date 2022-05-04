@@ -5,9 +5,19 @@ const FileCookieStore = require('tough-cookie-filestore2')
 const WordPOS = require('wordpos');
 const wordpos = new WordPOS();
 const cron = require('node-cron');
+const loremPicsum = require("lorem-picsum");
+const Quote = require('inspirational-quotes');
+const cors = require('cors');
 require('dotenv').config();
 
 app.use(express.json());
+
+app.use(cors({
+    origin: 'http://localhost:4000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
 const port = process.env.PORT || 4000;
 
 const cookieStore = new FileCookieStore('./cookies.json')
@@ -23,66 +33,61 @@ app.get('/', (req, res) => {
 
 //creates a schedule for the bot to run every day at 18:00
 cron.schedule('00 18 * * *', () => {
+    console.log("posting pic and thoughts");
     ; (async () => {
-        console.log("cron task started");
         await client.login()
         console.log('Logged in!');
 
-        wordpos.randAdjective({ count: 1 }, async (result) => {
-            const adjective = result[0].replace("_", " ");
-            const newDescription =
-                adjective.slice(result[0].length - 3) === "ing"
-                    ? adjective
-                    : " feeling " + adjective;
-            const newCaption = `El Gato UCR is ${newDescription} today! \nAre you ${newDescription}? \nPost a comment to see if you are!`;
-            console.log(newCaption);
-            await client.uploadPhoto({
-                photo: "./ucr_cat.jpg",
-                caption: newCaption,
-                post: 'feed'
-            }).then(async (result) => {
-                console.log(`https://www.instagram.com/p/${result.media.code}/`)
-                await client.addComment({
-                    mediaId: result.media.id,
-                    text: "#elgato #nodejs #ucr #multimedios",
-                }).catch(err => {
-                    console.log(err);
-                });
+        await client.uploadPhoto({
+            photo: loremPicsum({
+                width: 1080
+            }),
+            caption: getRandQuote(),
+            post: 'feed'
+        }).then(async (result) => {
+            console.log(`https://www.instagram.com/p/${result.media.code}/`)
+            res.send({ message: "success", post: `https://www.instagram.com/p/${result.media.code}/` });
+            await client.addComment({
+                mediaId: result.media.id,
+                text: "#nodejs #ucr #multimedios",
+            }).catch(err => {
+                console.log(err);
             });
         });
+
+
     })()
 })
 
+const getRandQuote = () => {
+    const quote = Quote.getRandomQuote();
+    return quote;
+}
 
-app.get('/post-picture', (req, res) => {
-    console.log("posting pic");
-    // res.send({message: "success"});
+app.post('/post-thought', (req, res) => {
+    console.log("posting personalized post");
+
+    const phrase = req.body.phrase;
+
     ; (async () => {
         await client.login()
         console.log('Logged in!');
+        console.log(phrase);
 
-        // creates a random adjective and adds it to the caption
-        wordpos.randAdjective({ count: 1 }, async (result) => {
-            const adjective = result[0].replace("_", " ");
-            const newDescription =
-                adjective.slice(result[0].length - 3) === "ing"
-                    ? adjective
-                    : " feeling " + adjective;
-            const newCaption = `El Gato UCR is ${newDescription} today! \nAre you ${newDescription}? \nPost a comment to see if you are!`;
-            console.log(newCaption);
-            await client.uploadPhoto({
-                photo: "./ucr_cat.jpg",
-                caption: newCaption,
-                post: 'feed'
-            }).then(async (result) => {
-                console.log(`https://www.instagram.com/p/${result.media.code}/`)
-                res.send({ message: "success", post: `https://www.instagram.com/p/${result.media.code}/` });
-                await client.addComment({
-                    mediaId: result.media.id,
-                    text: "#elgato #nodejs #ucr #multimedios",
-                }).catch(err => {
-                    console.log(err);
-                });
+        await client.uploadPhoto({
+            photo: loremPicsum({
+                width: 1080
+            }),
+            caption: phrase,
+            post: 'feed'
+        }).then(async (result) => {
+            console.log(`https://www.instagram.com/p/${result.media.code}/`)
+            res.send({ message: "done", post: `https://www.instagram.com/p/${result.media.code}/` });
+            await client.addComment({
+                mediaId: result.media.id,
+                text: "#nodejs #ucr #multimedios",
+            }).catch(err => {
+                console.log(err);
             });
         });
 
@@ -90,12 +95,19 @@ app.get('/post-picture', (req, res) => {
     })()
 });
 
+
 app.get('/post-status', (req, res) => {
     ; (async () => {
 
         await client.login()
 
-        await client.uploadPhoto({ photo: "./status.jpg", post: 'status' });
+        await client.uploadPhoto({
+            photo: loremPicsum({
+                width: 1080,
+                height: 1920,
+                blur: true
+            }), post: 'status'
+        });
         console.log("done");
         res.send({ message: "status updated" });
     })()
@@ -104,4 +116,5 @@ app.get('/post-status', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
+
 });
