@@ -1,24 +1,24 @@
 const express = require('express');
 const app = express();
-const Instagram = require('instagram-web-api')
-const FileCookieStore = require('tough-cookie-filestore2')
-const WordPOS = require('wordpos');
-const wordpos = new WordPOS();
+const Instagram = require('instagram-web-api');
+const FileCookieStore = require('tough-cookie-filestore2');
 const cron = require('node-cron');
 const loremPicsum = require("lorem-picsum");
 const Quote = require('inspirational-quotes');
 const cors = require('cors');
 require('dotenv').config();
 
+
 app.use(express.json());
 
+const port = process.env.PORT || 4000;
+
 app.use(cors({
-    origin: 'http://localhost:4000',
+    origin: 'https://annon-toughts.netlify.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 
-const port = process.env.PORT || 4000;
 
 const cookieStore = new FileCookieStore('./cookies.json')
 const client = new Instagram({
